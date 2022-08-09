@@ -124,8 +124,8 @@ if proj_dir:
     if os.path.exists(tools_yaml_path):
         search_paths.append(tools_yaml_path)
 
-eda_tools_yaml = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "env", "tools.yaml"))
-search_paths.append(eda_tools_yaml)
+local_tools_yaml = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "tools.yaml"))
+search_paths.append(local_tools_yaml)
 
 found_match = False
 for tools_yaml in search_paths:
