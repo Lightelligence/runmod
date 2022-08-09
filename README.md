@@ -63,7 +63,7 @@ module unload genus/191 innovus/19-12
 
 Note that the `--` is the separator between `runmod` arguments and command arguments.
 
-There also exists a shortcut for when the 'flow' or 'cannonical name' is the same name as the tool you want to invoke.
+There is a shortcut for when the 'flow' or 'cannonical name' is the same name as the tool you want to invoke.
 
 ```runmod -t xrun -- -helpall``` in this example is equivalent to:
 
@@ -72,6 +72,9 @@ module load xcelium/1909 vmanager/1909
 xrun -helpall
 module unload xcelium/1909 vmanager/1909
 ```
+
+In this case, `xrun` doesn't appear after the `-- `.
+The `-t` implicitly adds `xrun` at the start of the command.
 
 ## Creating a module for a new tool
 
