@@ -73,35 +73,50 @@ xrun -helpall
 module unload xcelium/1909 vmanager/1909
 ```
 
-In this case, `xrun` doesn't appear after the `-- `.
+In this case, `xrun` doesn't appear after the `-- ` in the `runmod` command line.
 The `-t` implicitly adds `xrun` at the start of the command.
 
 ## Creating a module for a new tool
 
-FIXME include the cookiecutter template
-Use the cookiecutter template in the FIXME directory to create a new modulefile
-
+This repository contains a cookiecutter template for creating new modulefiles.
+To create the first modulefile for a tool, run the following commands:
 ```
-cd modulefiles
-cookecutter template
-<follow onscreen menu>
+> cd modulefiles
+> cookecutter template
+> <follow onscreen menu>
 ```
 
-## Releasing a new version of a tool with an existing modulefile
-* *cd* to the appropriate directory in modulefiles
-* *cp* and existing file (ideally the latest)
-* Modify the new file to do the right thing.
-* Once you've qualified the release, update the .version file in that directory to change the default to your new version.
-### DO NOT EDIT EXISTING MODULE FILES
-Well, only do it with extreme caution. Generally, you should create a new modulefile for each tool release. There are cases where we might want toe edit and existing one, but bumping the version number is not one of those reasons.
-### Flows
-Flows should also not be edited in place. Please create new versions when you want to upgrade the version of a tools. This allows users to easily swap back and forth between every variant of our environment.
-#### Example
-Releasing a new version of genus would be something like:
+The first prompt will ask for the 'toolname'.
+This is the name of the directory that will be created in `modulefiles/<toolname>`.
+The second prompt will ask for the 'version'.
+This is the modulefile that will be created in `modulefiles/<toolname>/<version>`.
+`tools.yaml` will reference `<toolname>/<version>`, e.g. `xcelium/1909`.
+The last prompt will ask for 'toolbase_version'.
+This sets the 'toolbase' module version that is loaded in the newly created modulefile.
+The 'toolbase' module, included in this repository, is provided as a place to put setup or environment variables that are common to all modules.
+You will likely not need to modify the toolbase_version, so you can press 'enter' without typing anything for this prompt.
 
-``` bash
-cd modulefiles/genus
-cp 2010 2011
-<edit 2011>
-<optionally edit .version file to point at 2011 if you want to change the default version>
-```
+After running those commands, you will have a new `modulefiles/<toolname>` directory, with two files in it - `<version>` (e.g. `1909`) and `.version`.
+`.version` sets the default version of the module, but it is recommended to always use a specific module version in `tools.yaml`.
+You may need to modify the `<version>` file with tool-specific commands or environment file changes.
+
+## Releasing a new modulefile for an existing tool
+
+Releasing a new modulfile for an existing tool is simpler than creating one from scratch:
+1. `cd` to the tool's directory in `modulefiles/`.
+2. `cp` an existing version file (ideally the latest).
+3. Modify the new file with the appropriate changes.
+4. Validate the new modulefile and tool release
+5. If necessary, update the .version file to change the default to the new tool verison.
+
+For example, you could follow these steps to release a new version of Xcelium:
+
+1. `cd modulefiles/xcelium`
+2. `cp 1909 2103`
+3. Modify `2103`
+4. Validate Xcelium version 2103 by running DV regressions
+
+### Editing existing modulefiles
+It's generally considered bad practice to modify an existing modulefile.
+In the vast majority of cases, you should create a new modulefile for each tool release.
+Modifying an existing modulefile impacts people already using those modulefiles, and your changes could disrupt their work.

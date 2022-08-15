@@ -1,0 +1,2 @@
+#%Module # -*- tcl -*-
+set ModulesVersion {{ cookiecutter.version }}
