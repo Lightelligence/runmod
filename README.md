@@ -32,7 +32,7 @@ It is highly recommended to use a per-project `tools.yaml` via `$PROJ_DIR` inste
 `runmod` determines which modules to load based on a `tools.yaml` configuration file.
 This repository includes a `tools.yaml` as a reference, but will not be usable out-of-the-box.
 It will either need to be locally modified to point to reasonable default module versions, or superceded by a `tools.yaml` file in each project.
-If a project defines its own `tools.yaml`, it must be located in the `env/` directory for that project.
+If a project defines its own `tools.yaml`, it must be located in the `$PROJ_DIR/env/` directory for that project.
 
 `tools.yaml` contains a yaml dictionary where the first-level keys are canonical names for tool flows (e.g. `flowkit` for the Cadence digital back-end flow) and the values are another dictionary.
 The sub-dictionary currently only has a single key-value pair, where the required key is 'modules', and the value is an ordered list of modules to load for that tool flow.
