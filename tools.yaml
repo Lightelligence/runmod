@@ -1,0 +1,12 @@
+---
+xrun:
+  modules:
+    - xcelium/1909
+    - vmanager/1909
+jg:
+  modules:
+    - jaspergold
+flowkit:
+  modules:
+    - genus/191
+    - innovus/19-12

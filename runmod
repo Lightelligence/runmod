@@ -1,0 +1,151 @@
+#!/bin/bash
+
+# This python/bash polyglot loads modules from a canonical configuration in a
+# tools.yaml files and runs an arbitrary command before returning your shell
+# back to its original state.
+
+###############################################################################
+# Usage
+#
+#  runmod -t xrun -- -helpall
+#    Functionally equivalent to:
+#       module load <all_modules_listed_in_tools.yaml_for_xrun>
+#       xrun -helpall
+#       module unload <all_modules_listed_in_tools.yaml_for_xrun>
+#
+#  runmod xrun -- echo $PATH
+#    Functionally equivalent to:
+#       module load <all_modules_listed_in_tools.yaml_for_xrun>
+#       echo $PATH
+#       module unload <all_modules_listed_in_tools.yaml_for_xrun>
+#      
+###############################################################################
+# Bash code
+if "true" : '''\'
+then
+
+declare -i command_separator_index=0
+automatically_insert_canonical_name=false
+canonical_toolname=""
+
+for var in "$@"
+do
+    ((command_separator_index++))
+    case $var in
+        "-t")
+            automatically_insert_canonical_name=true
+            ;;
+        "--")
+            # Stop parsing args, the rest will be passed to the command
+            break;
+            ;;
+        *)
+            if [ "$canonical_toolname" != "" ] ; then
+                echo "Trying to set toolname again. Previous value '$canonical_toolname'. New value '$var'. did you forgot the '--'?"
+                exit 1
+            fi
+            canonical_toolname=$var
+            ;;
+    esac
+done
+
+if [ $command_separator_index == $# ]
+then
+    echo "Did not find '--' to separate runmod args from command args or it was last argument on line"
+    exit 1
+fi
+
+if [ "$canonical_toolname" = "" ]
+then
+    echo "Canonical toolname not set. Did you forget to pass it?"
+    exit 1
+fi
+
+
+((command_separator_index++))
+if [ "$automatically_insert_canonical_name" == true ]
+then
+    command=${canonical_toolname}" "${@:$command_separator_index}
+else
+    command=${@:$command_separator_index}
+fi    
+
+# Find the absolute path to this file so it can be invoked in python
+runmod_file="${BASH_SOURCE[0]}"
+# Hack for zsh
+if [ -z $runmod_file ]
+then
+  runmod_file=$0
+fi
+while [ -h "$runmod_file" ]; do # resolve $RUNMOD_FILE until the file is no longer a symlink
+  runmod_file="$(readlink "$runmod_file")"
+done
+
+if ! modules=$(python $runmod_file $canonical_toolname); then
+    # $modules here is going to be the error message from the python invocation
+    echo $modules
+    exit 1
+fi
+
+# 'bazel test' does something to clear bash of all knowledge of modules
+# It doesn't even recognize the module command
+# Reinitialize modules and set module path again
+# Eventually, find the configuration knob in bazel to be able to remove this code
+source $MODULESHOME/init/bash
+MODULEPATH="$( cd -P "$( dirname "$runmod_file" )" >/dev/null 2>&1 && pwd )"
+export MODULEPATH=`readlink -f $MODULEPATH/../modulefiles`
+
+# Load the appropriate modules
+module load $modules
+
+# Run the actual command
+bash -c "$command"
+exit $?
+fi
+'''
+
+###############################################################################
+# Python code
+import os
+import sys
+import yaml
+
+try:
+    tool_name = sys.argv[1]
+except IndexError:
+    print("Missing required arg[1] in runmod loader")
+    sys.exit(1)
+
+search_paths = []
+
+proj_dir = os.getenv("PROJ_DIR")
+if proj_dir:
+    tools_yaml_path = os.path.join(proj_dir, "env", "tools.yaml")
+    if os.path.exists(tools_yaml_path):
+        search_paths.append(tools_yaml_path)
+
+local_tools_yaml = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "tools.yaml"))
+search_paths.append(local_tools_yaml)
+
+found_match = False
+for tools_yaml in search_paths:
+    with open(tools_yaml, 'r') as filep:
+        ydata = yaml.load(filep, Loader=yaml.Loader)
+
+        try:
+            tool_ydata = ydata[tool_name]
+            assert 'modules' in tool_ydata, "{} in {} missing 'modules' entry".format(tool_name, tools_yaml)
+            required_modules = tool_ydata['modules']
+            assert isinstance(required_modules, list), "{}['modules'] in {} was not a yaml list".format(tool_name, tools_yaml)
+        except KeyError:
+            continue
+        except TypeError:
+            continue
+        print(" ".join(required_modules))
+        found_match = True
+        sys.exit(0)
+
+if not found_match:
+    print("{} was not found in {}".format(tool_name, search_paths))
+    sys.exit(1)
+

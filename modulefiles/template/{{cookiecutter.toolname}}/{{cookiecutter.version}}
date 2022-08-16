@@ -1,0 +1,11 @@
+{{ "#%Module1.0# # -*- tcl -*-" }}
+{% set root="$env(TOOLBASE)" %}
+
+module-whatis	"Loads {{ cookiecutter.toolname|lower }} paths"
+
+module load toolbase/{{ cookiecutter.toolbase_version }}
+
+set	{{ cookiecutter.toolname|lower }}_version {{ cookiecutter.version }}
+setenv {{ cookiecutter.toolname|upper }}HOME {{ root }}/{{ cookiecutter.toolname|upper }}${{ cookiecutter.toolname|lower }}_version
+
+prepend-path    PATH	$env({{ cookiecutter.toolname|upper }}HOME)/bin
