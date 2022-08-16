@@ -30,7 +30,7 @@ It is highly recommended to use a per-project `tools.yaml` via `$PROJ_DIR` inste
 
 # Specifying module versions
 `runmod` determines which modules to load based on a `tools.yaml` configuration file.
-This repository includes a `tools.yaml` as a reference, but will not be usable "out-of-the-box".
+This repository includes a `tools.yaml` as a reference, but will not be usable out-of-the-box.
 It will either need to be locally modified to point to reasonable default module versions, or superceded by a `tools.yaml` file in each project.
 If a project defines its own `tools.yaml`, it must be located in the `env/` directory for that project.
 
@@ -81,9 +81,9 @@ The `-t` implicitly adds `xrun` at the start of the command.
 This repository contains a cookiecutter template for creating new modulefiles.
 To create the first modulefile for a tool, run the following commands:
 ```
-> cd modulefiles
-> cookecutter template
-> <follow onscreen menu>
+cd modulefiles
+cookecutter template
+<follow onscreen menu>
 ```
 
 The first prompt will ask for the 'toolname'.
@@ -118,5 +118,5 @@ For example, you could follow these steps to release a new version of Xcelium:
 
 ### Editing existing modulefiles
 It's generally considered bad practice to modify an existing modulefile.
-In the vast majority of cases, you should create a new modulefile for each tool release.
+In the overwhelming majority of cases, you should create a new modulefile for each tool release.
 Modifying an existing modulefile impacts people already using those modulefiles, and your changes could disrupt their work.
